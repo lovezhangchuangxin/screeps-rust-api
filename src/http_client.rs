@@ -205,7 +205,7 @@ mod tests {
             match result {
                 Ok(data) => {
                     println!("Authentication successful: {:?}", data);
-                    assert_eq!(data.ok, 1);
+                    assert_eq!(data.base_data.ok, 1);
                 }
                 Err(e) => {
                     println!("Authentication failed: {:?}", e);
