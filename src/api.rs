@@ -1,8 +1,10 @@
+use serde::{Serialize, de::DeserializeOwned};
+
 use crate::{
-    EncodedRoomTerrainData, RoomStatusData, RoomTerrainData,
+    EncodedRoomTerrainData, MyNameData, RoomStatusData, RoomTerrainData, UserInfoData,
     config::ScreepsConfig,
     error::ScreepsResult,
-    http_client::{Method, ScreepsHttpClient},
+    http_client::*,
     model::{RoomObjectsData, TokenData},
 };
 
@@ -23,6 +25,28 @@ impl ScreepsApi {
         self.http_client.auth().await
     }
 
+    /// 请求接口
+    pub async fn request<T: Serialize, U: DeserializeOwned>(
+        &mut self,
+        method: Method,
+        path: &str,
+        body: Option<T>,
+    ) -> ScreepsResult<U> {
+        self.http_client.request(method, path, body).await
+    }
+
+    /// 获取自己的信息数据
+    pub async fn get_my_info(&mut self) -> ScreepsResult<UserInfoData> {
+        self.request::<AnyPayload, UserInfoData>(Get, "/auth/me", None)
+            .await
+    }
+
+    /// 获取我的名字
+    pub async fn get_my_name(&mut self) -> ScreepsResult<MyNameData> {
+        self.request::<AnyPayload, MyNameData>(Get, "/user/name", None)
+            .await
+    }
+
     /// 获取房间对象数据
     /// 参数：
     /// - room: 房间名称
@@ -32,13 +56,12 @@ impl ScreepsApi {
         room: &str,
         shard: &str,
     ) -> ScreepsResult<RoomObjectsData> {
-        self.http_client
-            .request(
-                Method::Get,
-                "/game/room-objects",
-                Some(&[("room", room), ("shard", shard)]),
-            )
-            .await
+        self.request(
+            Get,
+            "/game/room-objects",
+            Some(&[("room", room), ("shard", shard)]),
+        )
+        .await
     }
 
     /// 获取房间地形数据
@@ -47,13 +70,12 @@ impl ScreepsApi {
         room: &str,
         shard: &str,
     ) -> ScreepsResult<RoomTerrainData> {
-        self.http_client
-            .request(
-                Method::Get,
-                "/game/room-terrain",
-                Some(&[("room", room), ("shard", shard)]),
-            )
-            .await
+        self.request(
+            Get,
+            "/game/room-terrain",
+            Some(&[("room", room), ("shard", shard)]),
+        )
+        .await
     }
 
     /// 获取编码后的房间地形数据
@@ -62,13 +84,12 @@ impl ScreepsApi {
         room: &str,
         shard: &str,
     ) -> ScreepsResult<EncodedRoomTerrainData> {
-        self.http_client
-            .request(
-                Method::Get,
-                "/game/room-terrain",
-                Some(&[("room", room), ("shard", shard), ("encoded", "true")]),
-            )
-            .await
+        self.request(
+            Get,
+            "/game/room-terrain",
+            Some(&[("room", room), ("shard", shard), ("encoded", "true")]),
+        )
+        .await
     }
 
     /// 获取房间状态数据
@@ -77,13 +98,12 @@ impl ScreepsApi {
         room: &str,
         shard: &str,
     ) -> ScreepsResult<RoomStatusData> {
-        self.http_client
-            .request(
-                Method::Get,
-                "/game/room-status",
-                Some(&[("room", room), ("shard", shard)]),
-            )
-            .await
+        self.request(
+            Get,
+            "/game/room-status",
+            Some(&[("room", room), ("shard", shard)]),
+        )
+        .await
     }
 }
 
@@ -91,6 +111,20 @@ impl ScreepsApi {
 mod tests {
     use super::*;
     use crate::screeps_api_from_env;
+
+    #[tokio::test]
+    async fn test_get_my_info() {
+        let mut api = screeps_api_from_env!().unwrap();
+        let my_info = api.get_my_info().await.unwrap();
+        assert_eq!(my_info.base_data.ok, 1);
+    }
+
+    #[tokio::test]
+    async fn test_get_my_name() {
+        let mut api = screeps_api_from_env!().unwrap();
+        let my_name = api.get_my_name().await.unwrap();
+        assert_eq!(my_name.base_data.ok, 1);
+    }
 
     #[tokio::test]
     async fn test_get_room_objects() {

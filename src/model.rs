@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    EncodedRoomTerrain, RoomStatus, RoomTerrain,
+    EncodedRoomTerrain, RoomStatus, RoomTerrain, UserInfo,
     types::{RoomObject, UserWithId},
 };
 
@@ -23,6 +23,23 @@ pub struct TokenData {
     pub base_data: BaseData,
     /// token
     pub token: String,
+}
+
+/// 用户信息数据
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UserInfoData {
+    #[serde(flatten)]
+    pub base_data: BaseData,
+    #[serde(flatten)]
+    pub user: UserInfo,
+}
+
+/// 我的名字数据
+#[derive(Serialize, Deserialize, Debug)]
+pub struct MyNameData {
+    #[serde(flatten)]
+    pub base_data: BaseData,
+    pub username: String,
 }
 
 /// 房间对象数据

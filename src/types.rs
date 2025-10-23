@@ -28,6 +28,63 @@ pub struct UserWithId {
     pub badge: Option<Badge>,
 }
 
+/// 用户信息
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UserInfo {
+    pub _id: String,
+    pub email: String,
+    pub username: String,
+    pub cpu: i32,
+    pub badge: Option<Badge>,
+    pub password: Option<bool>,
+    #[serde(rename = "notifyPrefs")]
+    pub notify_prefs: Option<NotifyPrefs>,
+    pub gcl: i32,
+    pub credits: f64,
+    pub power: i32,
+    pub money: f64,
+    #[serde(rename = "subscriptionTokens")]
+    pub subscription_tokens: i32,
+    #[serde(rename = "cpuShard")]
+    pub cpu_shard: HashMap<String, f64>,
+    #[serde(rename = "cpuShardUpdatedTime")]
+    pub cpu_shard_updated_time: Option<u64>,
+    #[serde(rename = "powerExperimentations")]
+    pub power_experimentations: Option<u64>,
+    #[serde(rename = "powerExperimentationTime")]
+    pub power_experimentation_time: Option<u64>,
+    pub resources: GlobalResources,
+    pub steam: Option<SteamAccount>,
+}
+
+/// 用户通知设置
+#[derive(Serialize, Deserialize, Debug)]
+pub struct NotifyPrefs {
+    #[serde(rename = "sendOnline")]
+    pub send_online: bool,
+    #[serde(rename = "disabledOnMessages")]
+    pub disabled_on_messages: bool,
+}
+
+/// 全局资源数
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GlobalResources {
+    #[serde(rename = "accessKey")]
+    pub access_key: i32,
+    pub pixel: i32,
+    #[serde(rename = "cpuUnlock")]
+    pub cpu_unlock: i32,
+}
+
+/// steam 账号信息
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SteamAccount {
+    pub id: String,
+    #[serde(rename = "displayName")]
+    pub display_name: String,
+    pub ownership: Vec<i32>,
+}
+
 /// 房间地形
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RoomTerrain {

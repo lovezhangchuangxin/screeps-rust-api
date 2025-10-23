@@ -19,6 +19,9 @@ pub enum Method {
     Get,
     Post,
 }
+pub use Method::*;
+
+pub type AnyPayload = Option<&'static [(&'static str, &'static str)]>;
 
 /// Screeps http 客户端
 pub struct ScreepsHttpClient {
