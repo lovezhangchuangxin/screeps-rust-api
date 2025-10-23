@@ -197,7 +197,7 @@ mod tests {
         }
 
         let config = ScreepsConfig::new(
-            None, // 不使用token进行认证测试
+            None,
             Some(email),
             Some(password),
             "screeps.com".to_string(),
