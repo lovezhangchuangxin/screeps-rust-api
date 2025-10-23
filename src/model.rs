@@ -101,3 +101,11 @@ pub struct AllShardData {
     pub base_data: BaseData,
     pub shards: Option<Vec<ShardInfo>>,
 }
+
+/// shard 时间数据
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ShardTimeData {
+    #[serde(flatten)]
+    pub base_data: BaseData,
+    pub time: Option<u64>,
+}

@@ -2,7 +2,7 @@ use serde::{Serialize, de::DeserializeOwned};
 
 use crate::{
     AllShardData, EncodedRoomTerrainData, MyInfoData, MyNameData, RoomStatusData, RoomTerrainData,
-    UserAllRoomsData, UserInfoData,
+    ShardTimeData, UserAllRoomsData, UserInfoData,
     config::ScreepsConfig,
     error::ScreepsResult,
     http_client::*,
@@ -124,6 +124,12 @@ impl ScreepsApi {
         self.request::<AnyPayload, AllShardData>(Get, "/game/shards/info", None)
             .await
     }
+
+    /// 获取指定 shard 的游戏时间
+    pub async fn get_shard_time(&self, shard: &str) -> ScreepsResult<ShardTimeData> {
+        self.request(Get, "/game/time", Some(&[("shard", shard)]))
+            .await
+    }
 }
 
 #[cfg(test)]
@@ -214,5 +220,12 @@ mod tests {
         let api = ScreepsApi::new(ScreepsConfig::default());
         let my_info = api.get_shards().await.unwrap();
         assert_eq!(my_info.base_data.ok, 1);
+    }
+
+    #[tokio::test]
+    async fn test_get_shard_time() {
+        let api = ScreepsApi::new(ScreepsConfig::default());
+        let game_time = api.get_shard_time("shard3").await.unwrap();
+        assert_eq!(game_time.base_data.ok, 1);
     }
 }
