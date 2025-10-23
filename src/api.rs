@@ -65,7 +65,7 @@ impl ScreepsApi {
         self.http_client
             .request(
                 Method::Get,
-                "/game/room-terrain-encoded",
+                "/game/room-terrain",
                 Some(&[("room", room), ("shard", shard), ("encoded", "true")]),
             )
             .await
