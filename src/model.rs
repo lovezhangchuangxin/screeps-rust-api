@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    EncodedRoomTerrain, RoomTerrain,
+    EncodedRoomTerrain, RoomStatus, RoomTerrain,
     types::{RoomObject, UserWithId},
 };
 
@@ -48,4 +48,12 @@ pub struct EncodedRoomTerrainData {
     #[serde(flatten)]
     pub base_data: BaseData,
     pub terrain: Vec<EncodedRoomTerrain>,
+}
+
+/// 房间状态数据
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RoomStatusData {
+    #[serde(flatten)]
+    pub base_data: BaseData,
+    pub rooms: Option<RoomStatus>,
 }

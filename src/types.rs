@@ -52,6 +52,17 @@ pub struct EncodedRoomTerrain {
     pub r#type: String,
 }
 
+/// 房间状态
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RoomStatus {
+    _id: String,
+    /// "normal" | "out of borders"
+    pub status: String,
+    #[serde(rename = "respawnArea")]
+    pub respawn_area: Option<i32>,
+    pub novice: Option<i32>,
+}
+
 /// 基本对象数据，每个对象都继承该结构
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BaseObject {
