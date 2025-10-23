@@ -5,6 +5,7 @@ use reqwest::header::HeaderMap;
 use crate::http_client::Method;
 
 /// 接口速度限制
+#[derive(Debug, Clone)]
 pub struct RateLimit {
     /// 限制次数
     pub limit: i32,
@@ -33,7 +34,7 @@ impl RateLimit {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Period {
     Minute,
     Hour,
@@ -55,7 +56,18 @@ impl RateLimits {
     /// 参数：
     /// - method: 请求方法，GET or POST
     /// - path: 请求路径
-    pub fn get_limit(&mut self, method: &Method, path: &str) -> &mut RateLimit {
+    pub fn get_limit(&self, method: &Method, path: &str) -> RateLimit {
+        match method {
+            Method::Get => self.get_limits.get(path).cloned().unwrap_or(self.global_limit.clone()),
+            Method::Post => self.post_limits.get(path).cloned().unwrap_or(self.global_limit.clone()),
+        }
+    }
+
+    /// 获取指定请求方法和请求路径的限速信息，找不到返回 global 的限速信息
+    /// 参数：
+    /// - method: 请求方法，GET or POST
+    /// - path: 请求路径
+    pub fn get_limit_mut(&mut self, method: &Method, path: &str) -> &mut RateLimit {
         match method {
             Method::Get => self
                 .get_limits
@@ -74,7 +86,7 @@ impl RateLimits {
     /// - path: 请求路径
     /// - limit: 限速信息
     pub fn update_limit(&mut self, method: &Method, path: &str, rate_limit: RateLimit) {
-        let now_rate_limit = self.get_limit(method, path);
+        let now_rate_limit = self.get_limit_mut(method, path);
         *now_rate_limit = rate_limit;
     }
 
@@ -95,7 +107,7 @@ impl RateLimits {
             .get("x-ratelimit-reset")
             .and_then(|s| s.to_str().unwrap_or("0").parse::<u128>().ok())
             .unwrap_or(0);
-        let rate_limit = self.get_limit(method, path);
+        let rate_limit = self.get_limit_mut(method, path);
         rate_limit.limit = limit;
         rate_limit.remaining = remaining;
         rate_limit.reset = reset;

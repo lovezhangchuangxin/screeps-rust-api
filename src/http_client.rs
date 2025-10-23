@@ -1,4 +1,5 @@
 use std::{
+    sync::Mutex,
     thread,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
@@ -30,9 +31,9 @@ pub struct ScreepsHttpClient {
     /// 配置
     pub config: ScreepsConfig,
     /// 限速信息
-    pub rate_limits: RateLimits,
+    pub rate_limits: Mutex<RateLimits>,
     /// 最新的 token
-    pub token: Option<String>,
+    pub token: Mutex<Option<String>>,
 }
 
 impl ScreepsHttpClient {
@@ -44,15 +45,15 @@ impl ScreepsHttpClient {
 
         Self {
             client,
-            token: config.token.clone(),
+            token: Mutex::new(config.token.clone()),
             config,
-            rate_limits: RateLimits::default(),
+            rate_limits: Mutex::new(RateLimits::default()),
         }
     }
 
     /// 封装 get 请求和 post 请求
     pub async fn request<T: Serialize, U: DeserializeOwned>(
-        &mut self,
+        &self,
         method: Method,
         path: &str,
         body: Option<T>,
@@ -65,7 +66,7 @@ impl ScreepsHttpClient {
         .headers(self.build_headers());
 
         // 先检查速率限制
-        let rate_limit = self.rate_limits.get_limit(&method, path);
+        let rate_limit = self.rate_limits.lock().unwrap().get_limit(&method, path);
         if rate_limit.remaining <= 0 {
             let wait_time = rate_limit.reset * 1000
                 - SystemTime::now()
@@ -78,9 +79,11 @@ impl ScreepsHttpClient {
         }
         let response = request_builder.send().await?;
         if let Some(token) = response.headers().get("x-token") {
-            self.token = Some(token.to_str().unwrap().to_string());
+            *self.token.lock().unwrap() = Some(token.to_str().unwrap().to_string());
         }
         self.rate_limits
+            .lock()
+            .unwrap()
             .update_from_headers(&method, path, response.headers());
         let result = response.json::<U>().await?;
         Ok(result)
@@ -89,7 +92,8 @@ impl ScreepsHttpClient {
     /// 构造请求头，添加 token
     fn build_headers(&self) -> HeaderMap {
         let mut headers = HeaderMap::new();
-        if let Some(token) = &self.token {
+        let token = self.token.lock().unwrap().as_ref().cloned();
+        if let Some(token) = token {
             headers.insert("X-Token", token.parse().unwrap());
             headers.insert("X-Username", token.parse().unwrap());
         }
@@ -104,7 +108,7 @@ impl ScreepsHttpClient {
 
 impl ScreepsHttpClient {
     /// 登录以获取 token
-    pub async fn auth(&mut self) -> ScreepsResult<TokenData> {
+    pub async fn auth(&self) -> ScreepsResult<TokenData> {
         if self.config.email.is_none() || self.config.password.is_none() {
             return Err(ScreepsError::Config(
                 "email or password is none".to_string(),
@@ -200,7 +204,7 @@ mod tests {
             true,
             10000,
         );
-        let mut client = ScreepsHttpClient::new(config);
+        let client = ScreepsHttpClient::new(config);
         let result = client.auth().await;
 
         // 只有当设置了环境变量时才检查结果

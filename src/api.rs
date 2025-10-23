@@ -1,7 +1,4 @@
-use std::sync::Arc;
-
 use serde::{Serialize, de::DeserializeOwned};
-use tokio::sync::Mutex;
 
 use crate::{
     EncodedRoomTerrainData, MyInfoData, MyNameData, RoomStatusData, RoomTerrainData,
@@ -15,18 +12,18 @@ use crate::{
 /// Screeps Api
 pub struct ScreepsApi {
     /// http 客户端
-    pub http_client: Arc<Mutex<ScreepsHttpClient>>,
+    pub http_client: ScreepsHttpClient,
 }
 
 impl ScreepsApi {
     pub fn new(config: ScreepsConfig) -> Self {
-        let http_client = Arc::new(Mutex::new(ScreepsHttpClient::new(config)));
+        let http_client = ScreepsHttpClient::new(config);
         Self { http_client }
     }
 
     /// 登录获取 token 数据
     pub async fn auth(&self) -> ScreepsResult<TokenData> {
-        self.http_client.lock().await.auth().await
+        self.http_client.auth().await
     }
 
     /// 请求接口
@@ -36,11 +33,7 @@ impl ScreepsApi {
         path: &str,
         body: Option<T>,
     ) -> ScreepsResult<U> {
-        self.http_client
-            .lock()
-            .await
-            .request(method, path, body)
-            .await
+        self.http_client.request(method, path, body).await
     }
 
     /// 获取自己的信息数据
