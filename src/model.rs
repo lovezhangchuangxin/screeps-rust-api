@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::types::{RoomObject, UserWithId};
+use crate::{
+    EncodedRoomTerrain, RoomTerrain,
+    types::{RoomObject, UserWithId},
+};
 
 /// 响应的基础数据，每个接口返回的数据结构都继承自该结构
 #[derive(Serialize, Deserialize, Debug)]
@@ -29,4 +32,20 @@ pub struct RoomObjectsData {
     pub base_data: BaseData,
     pub objects: Vec<RoomObject>,
     pub users: HashMap<String, UserWithId>,
+}
+
+/// 房间地形数据
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RoomTerrainData {
+    #[serde(flatten)]
+    pub base_data: BaseData,
+    pub terrain: Vec<RoomTerrain>,
+}
+
+/// 编码后的房间数据
+#[derive(Serialize, Deserialize, Debug)]
+pub struct EncodedRoomTerrainData {
+    #[serde(flatten)]
+    pub base_data: BaseData,
+    pub terrain: Vec<EncodedRoomTerrain>,
 }

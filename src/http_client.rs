@@ -100,7 +100,7 @@ impl ScreepsHttpClient {
 }
 
 impl ScreepsHttpClient {
-    /// 登陆以获取 token
+    /// 登录以获取 token
     pub async fn auth(&mut self) -> ScreepsResult<TokenData> {
         if self.config.email.is_none() || self.config.password.is_none() {
             return Err(ScreepsError::Config(

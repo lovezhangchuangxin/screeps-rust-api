@@ -28,6 +28,30 @@ pub struct UserWithId {
     pub badge: Option<Badge>,
 }
 
+/// 房间地形
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RoomTerrain {
+    pub room: String,
+    pub x: i32,
+    pub y: i32,
+    /// 地形类型, "swamp" | "wall"
+    pub r#type: String,
+}
+
+/// 编码后的房间地形
+#[derive(Serialize, Deserialize, Debug)]
+pub struct EncodedRoomTerrain {
+    pub _id: String,
+    pub room: String,
+    /**
+     * terrain is a string of digits, giving the terrain left-to-right and top-to-bottom.
+     * 0: plain, 1: wall, 2: swamp, 3: also wall
+     */
+    pub terrain: String,
+    /// type 固定为 terrain
+    pub r#type: String,
+}
+
 /// 基本对象数据，每个对象都继承该结构
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BaseObject {
