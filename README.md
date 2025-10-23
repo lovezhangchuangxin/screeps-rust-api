@@ -23,4 +23,5 @@ cargo test
 ```env
 SCREEPS_EMAIL=your_email@example.com
 SCREEPS_PASSWORD=your_password
+SCREEPS_TOKEN=your_token
 ```

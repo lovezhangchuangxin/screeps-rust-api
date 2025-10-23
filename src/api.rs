@@ -90,8 +90,7 @@ impl ScreepsApi {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use dotenvy;
-    use std::env;
+    use crate::screeps_api_from_env;
 
     #[tokio::test]
     async fn test_get_room_objects() {
@@ -124,44 +123,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_room_status() {
-        let _ = dotenvy::dotenv();
-
-        // 从环境变量获取凭据，如果不存在则跳过测试
-        let email = env::var("SCREEPS_EMAIL").unwrap_or_else(|_| {
-            println!("SCREEPS_EMAIL not set, skipping test");
-            "test@example.com".to_string() // 占位符值
-        });
-
-        let password = env::var("SCREEPS_PASSWORD").unwrap_or_else(|_| {
-            println!("SCREEPS_PASSWORD not set, skipping test");
-            "password".to_string() // 占位符值
-        });
-
-        let token = env::var("SCREEPS_TOKEN").unwrap_or_else(|_| {
-            println!("SCREEPS_TOKEN not set, skipping test");
-            "".to_string()
-        });
-
-        // 如果没有设置环境变量，则跳过测试
-        if env::var("SCREEPS_EMAIL").is_err()
-            && env::var("SCREEPS_PASSWORD").is_err()
-            && token.is_empty()
-        {
-            println!(
-                "Skipping authentication test because SCREEPS_EMAIL or SCREEPS_PASSWORD or token is not set"
-            );
-            return;
-        }
-
-        let config = ScreepsConfig::new(
-            Some(token),
-            Some(email),
-            Some(password),
-            "screeps.com".to_string(),
-            true,
-            10000,
-        );
-        let mut api = ScreepsApi::new(config);
+        let mut api = screeps_api_from_env!().unwrap();
         let room_status = api.get_room_status("E13S13", "shard3").await.unwrap();
         assert_eq!(room_status.base_data.ok, 1);
     }

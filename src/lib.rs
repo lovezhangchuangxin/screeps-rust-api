@@ -6,6 +6,8 @@ pub mod model;
 pub mod rate_limit;
 pub mod types;
 
+mod test_utils;
+
 pub use api::*;
 pub use config::*;
 pub use error::*;
