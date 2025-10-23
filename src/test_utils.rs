@@ -6,12 +6,12 @@ macro_rules! screeps_api_from_env {
 
         let email = std::env::var("SCREEPS_EMAIL").unwrap_or_else(|_| {
             eprintln!("SCREEPS_EMAIL not set, using placeholder");
-            "test@example.com".to_string()
+            "".to_string()
         });
 
         let password = std::env::var("SCREEPS_PASSWORD").unwrap_or_else(|_| {
             eprintln!("SCREEPS_PASSWORD not set, using placeholder");
-            "password".to_string()
+            "".to_string()
         });
 
         let token = std::env::var("SCREEPS_TOKEN").unwrap_or_else(|_| {
