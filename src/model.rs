@@ -22,7 +22,7 @@ pub struct TokenData {
     #[serde(flatten)]
     pub base_data: BaseData,
     /// token
-    pub token: String,
+    pub token: Option<String>,
 }
 
 /// 我的信息数据
@@ -31,7 +31,7 @@ pub struct MyInfoData {
     #[serde(flatten)]
     pub base_data: BaseData,
     #[serde(flatten)]
-    pub user: MyInfo,
+    pub user: Option<MyInfo>,
 }
 
 /// 其他用户信息数据
@@ -39,7 +39,7 @@ pub struct MyInfoData {
 pub struct UserInfoData {
     #[serde(flatten)]
     pub base_data: BaseData,
-    pub user: UserInfo,
+    pub user: Option<UserInfo>,
 }
 
 /// 我的名字数据
@@ -47,7 +47,7 @@ pub struct UserInfoData {
 pub struct MyNameData {
     #[serde(flatten)]
     pub base_data: BaseData,
-    pub username: String,
+    pub username: Option<String>,
 }
 
 /// 玩家的所有房间
@@ -56,9 +56,9 @@ pub struct UserAllRoomsData {
     #[serde(flatten)]
     pub base_data: BaseData,
     /// 占有的房间
-    pub shards: HashMap<String, Vec<String>>,
+    pub shards: Option<HashMap<String, Vec<String>>>,
     /// 预定房间
-    pub reservations: HashMap<String, Vec<String>>,
+    pub reservations: Option<HashMap<String, Vec<String>>>,
 }
 
 /// 房间对象数据
@@ -66,8 +66,8 @@ pub struct UserAllRoomsData {
 pub struct RoomObjectsData {
     #[serde(flatten)]
     pub base_data: BaseData,
-    pub objects: Vec<RoomObject>,
-    pub users: HashMap<String, UserWithId>,
+    pub objects: Option<Vec<RoomObject>>,
+    pub users: Option<HashMap<String, UserWithId>>,
 }
 
 /// 房间地形数据
@@ -75,7 +75,7 @@ pub struct RoomObjectsData {
 pub struct RoomTerrainData {
     #[serde(flatten)]
     pub base_data: BaseData,
-    pub terrain: Vec<RoomTerrain>,
+    pub terrain: Option<Vec<RoomTerrain>>,
 }
 
 /// 编码后的房间数据
@@ -83,7 +83,7 @@ pub struct RoomTerrainData {
 pub struct EncodedRoomTerrainData {
     #[serde(flatten)]
     pub base_data: BaseData,
-    pub terrain: Vec<EncodedRoomTerrain>,
+    pub terrain: Option<Vec<EncodedRoomTerrain>>,
 }
 
 /// 房间状态数据

@@ -1,16 +1,34 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str};
 
 use serde::{Deserialize, Serialize};
 
 /// 头像数据
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Badge {
-    pub r#type: i32,
+    pub r#type: BadgeType,
     pub color1: String,
     pub color2: String,
     pub color3: String,
     pub param: i32,
     pub flip: bool,
+    pub decoration: Option<String>,
+}
+
+/// 头像类型
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+pub enum BadgeType {
+    /// 种类
+    Kind(i32),
+    /// 路径
+    Path(BadgePath),
+}
+
+/// 头像路径
+#[derive(Serialize, Deserialize, Debug)]
+pub struct BadgePath {
+    pub path1: String,
+    pub path2: String,
 }
 
 /// 用户对象
@@ -39,9 +57,9 @@ pub struct MyInfo {
     pub password: Option<bool>,
     #[serde(rename = "notifyPrefs")]
     pub notify_prefs: Option<NotifyPrefs>,
-    pub gcl: i32,
+    pub gcl: u64,
     pub credits: f64,
-    pub power: i32,
+    pub power: u64,
     pub money: f64,
     #[serde(rename = "subscriptionTokens")]
     pub subscription_tokens: i32,
@@ -64,8 +82,8 @@ pub struct UserInfo {
     /// 最多只能拿到 id
     pub steam: Option<HashMap<String, String>>,
     pub username: String,
-    pub gcl: i32,
-    pub power: i32,
+    pub gcl: u64,
+    pub power: u64,
     pub badge: Option<Badge>,
 }
 
@@ -224,7 +242,7 @@ pub struct Source {
     #[serde(rename = "invaderHarvested")]
     pub invader_harvested: i32,
     #[serde(rename = "nextRegenerationTime")]
-    pub next_regeneration_time: Option<i32>,
+    pub next_regeneration_time: Option<u64>,
 }
 
 /// Mineral 对象
@@ -237,7 +255,7 @@ pub struct Mineral {
     #[serde(rename = "mineralAmount")]
     pub mineral_amount: i32,
     #[serde(rename = "nextRegenerationTime")]
-    pub next_regeneration_time: Option<i32>,
+    pub next_regeneration_time: Option<u64>,
 }
 
 /// ConstructedWall 对象
@@ -245,11 +263,19 @@ pub struct Mineral {
 pub struct ConstructedWall {
     #[serde(flatten)]
     pub base_object: BaseObject,
-    pub hits: i32,
+    pub hits: Option<i32>,
     #[serde(rename = "hitsMax")]
-    pub hits_max: i32,
+    pub hits_max: Option<i32>,
     #[serde(rename = "notifyWhenAttacked")]
-    pub notify_when_attacked: bool,
+    pub notify_when_attacked: Option<bool>,
+    #[serde(rename = "decayTime")]
+    pub decay_time: Option<DecayTime>,
+}
+
+/// 消失时间
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DecayTime {
+    timestamp: u64,
 }
 
 /// Road 对象
@@ -263,7 +289,7 @@ pub struct Road {
     #[serde(rename = "notifyWhenAttacked")]
     pub notify_when_attacked: bool,
     #[serde(rename = "nextDecayTime")]
-    pub next_decay_time: Option<i32>,
+    pub next_decay_time: Option<u64>,
 }
 
 /// Controller 对象的 Reservation 字段
@@ -280,17 +306,18 @@ pub struct Sign {
     pub time: i32,
     pub text: String,
     #[serde(rename = "datetime")]
-    pub date_time: i64,
+    pub date_time: u64,
 }
 
 /// Controller 对象的 Effect 字段
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Effect {
-    pub effect: i32,
-    pub power: i32,
-    pub level: i32,
+    pub effect: Option<i32>,
+    pub power: Option<i32>,
     #[serde(rename = "endTime")]
-    pub end_time: i64,
+    pub end_time: Option<u64>,
+    #[serde(rename = "duration")]
+    pub duration: Option<u64>,
 }
 
 /// Controller 对象
@@ -304,7 +331,7 @@ pub struct Controller {
     pub progress_total: Option<i32>,
     pub user: Option<String>,
     #[serde(rename = "downgradeTime")]
-    pub downgrade_time: Option<i64>,
+    pub downgrade_time: Option<u64>,
     #[serde(rename = "safeMode")]
     pub safe_mode: Option<i32>,
     #[serde(rename = "safeModeAvailable")]
@@ -318,16 +345,19 @@ pub struct Controller {
     pub reservation: Option<Reservation>,
     pub sign: Option<Sign>,
     #[serde(rename = "isPowerEnabled")]
-    pub is_power_enabled: bool,
-    pub effects: Option<Vec<Effect>>,
+    pub is_power_enabled: Option<bool>,
+    /// key 为 effect id
+    pub effects: Option<HashMap<String, Effect>>,
 }
 
 /// Spawn 对象的 Spawning 字段
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Spawning {
     pub name: String,
-    pub need_time: i32,
-    pub remaining_time: i32,
+    #[serde(rename = "needTime")]
+    pub need_time: u64,
+    #[serde(rename = "spawnTime")]
+    pub remaining_time: u64,
 }
 
 /// Spawn 对象的 Store 字段
@@ -372,7 +402,7 @@ pub struct Extension {
 }
 
 /// Storage 对象的 Store 字段
-pub type Store = HashMap<String, i32>;
+pub type Store = HashMap<String, Option<i32>>;
 
 /// Storage 对象
 #[derive(Serialize, Deserialize, Debug)]
@@ -394,9 +424,16 @@ pub struct Storage {
 /// Tower 对象的 ActionLog 字段
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ActionLog {
-    pub attack: Option<String>,
-    pub heal: Option<String>,
-    pub repair: Option<String>,
+    pub attack: Option<Point>,
+    pub heal: Option<Point>,
+    pub repair: Option<Point>,
+}
+
+/// Point 对象
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
 }
 
 /// Tower 对象
@@ -429,7 +466,7 @@ pub struct Rampart {
     #[serde(rename = "notifyWhenAttacked")]
     pub notify_when_attacked: bool,
     #[serde(rename = "nextDecayTime")]
-    pub next_decay_time: Option<i64>,
+    pub next_decay_time: Option<u64>,
 }
 
 /// Extractor 对象
@@ -440,10 +477,10 @@ pub struct Extractor {
     pub hits: i32,
     #[serde(rename = "hitsMax")]
     pub hits_max: i32,
-    pub user: String,
+    pub user: Option<String>,
     #[serde(rename = "notifyWhenAttacked")]
     pub notify_when_attacked: bool,
-    pub cooldown: i32,
+    pub cooldown: Option<i32>,
 }
 
 /// Terminal 对象
@@ -461,7 +498,7 @@ pub struct Terminal {
     #[serde(rename = "storeCapacity")]
     pub store_capacity: Option<i32>,
     #[serde(rename = "cooldownTime")]
-    pub cooldown_time: Option<i32>,
+    pub cooldown_time: Option<u64>,
     pub send: Option<String>,
 }
 
@@ -511,7 +548,7 @@ pub struct Nuker {
     #[serde(rename = "storeCapacityResource")]
     pub store_capacity_resource: HashMap<String, Option<i32>>, // 包含 energy 和 G
     #[serde(rename = "cooldownTime")]
-    pub cooldown_time: Option<i32>,
+    pub cooldown_time: Option<u64>,
 }
 
 /// Factory 对象
@@ -530,7 +567,7 @@ pub struct Factory {
     pub store_capacity: Option<i32>,
     pub cooldown: Option<i32>,
     #[serde(rename = "cooldownTime")]
-    pub cooldown_time: Option<i32>,
+    pub cooldown_time: Option<u64>,
     pub effects: Option<HashMap<String, Effect>>,
     pub level: Option<i32>,
 }
@@ -548,7 +585,7 @@ pub struct Lab {
     pub notify_when_attacked: bool,
     pub cooldown: Option<i32>,
     #[serde(rename = "cooldownTime")]
-    pub cooldown_time: Option<i32>,
+    pub cooldown_time: Option<u64>,
     pub store: Store,
     #[serde(rename = "storeCapacity")]
     pub store_capacity: Option<i32>,
@@ -564,7 +601,7 @@ pub struct Lab {
 pub struct CreepBodyPart {
     #[serde(rename = "type")]
     pub part_type: String,
-    pub hits: i32,
+    pub hits: Option<i32>,
     pub boost: Option<String>,
 }
 
@@ -585,7 +622,7 @@ pub struct Creep {
     #[serde(rename = "storeCapacity")]
     pub store_capacity: Option<i32>,
     #[serde(rename = "notifyWhenAttacked")]
-    pub notify_when_attacked: bool,
+    pub notify_when_attacked: Option<bool>,
 }
 
 /// PowerCreep 对象
@@ -616,5 +653,5 @@ pub struct PowerCreep {
 pub struct PowerInfo {
     pub level: i32,
     #[serde(rename = "cooldownTime")]
-    pub cooldown_time: Option<i64>,
+    pub cooldown_time: Option<u64>,
 }
