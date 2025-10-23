@@ -1,7 +1,8 @@
 use serde::{Serialize, de::DeserializeOwned};
 
 use crate::{
-    EncodedRoomTerrainData, MyNameData, RoomStatusData, RoomTerrainData, UserInfoData,
+    EncodedRoomTerrainData, MyInfoData, MyNameData, RoomStatusData, RoomTerrainData,
+    UserAllRoomsData, UserInfoData,
     config::ScreepsConfig,
     error::ScreepsResult,
     http_client::*,
@@ -36,8 +37,8 @@ impl ScreepsApi {
     }
 
     /// 获取自己的信息数据
-    pub async fn get_my_info(&mut self) -> ScreepsResult<UserInfoData> {
-        self.request::<AnyPayload, UserInfoData>(Get, "/auth/me", None)
+    pub async fn get_my_info(&mut self) -> ScreepsResult<MyInfoData> {
+        self.request::<AnyPayload, MyInfoData>(Get, "/auth/me", None)
             .await
     }
 
@@ -45,6 +46,24 @@ impl ScreepsApi {
     pub async fn get_my_name(&mut self) -> ScreepsResult<MyNameData> {
         self.request::<AnyPayload, MyNameData>(Get, "/user/name", None)
             .await
+    }
+
+    /// 根据用户id查找用户信息数据
+    pub async fn get_user_info_by_id(&mut self, id: String) -> ScreepsResult<UserInfoData> {
+        self.request(Get, "/user/find", Some(&[("id", id)])).await
+    }
+
+    /// 根据用户名查找用户信息数据
+    pub async fn get_user_info_by_name(&mut self, name: String) -> ScreepsResult<UserInfoData> {
+        self.request(Get, "/user/find", Some(&[("username", name)]))
+            .await
+    }
+
+    /// 获取玩家的所有房间
+    /// 参数：
+    /// - id: 玩家 id
+    pub async fn get_user_rooms(&mut self, id: String) -> ScreepsResult<UserAllRoomsData> {
+        self.request(Get, "/user/rooms", Some(&[("id", id)])).await
     }
 
     /// 获取房间对象数据
@@ -116,6 +135,7 @@ mod tests {
     async fn test_get_my_info() {
         let mut api = screeps_api_from_env!().unwrap();
         let my_info = api.get_my_info().await.unwrap();
+        // println!("{}", my_info.user._id);
         assert_eq!(my_info.base_data.ok, 1);
     }
 
@@ -124,6 +144,36 @@ mod tests {
         let mut api = screeps_api_from_env!().unwrap();
         let my_name = api.get_my_name().await.unwrap();
         assert_eq!(my_name.base_data.ok, 1);
+    }
+
+    #[tokio::test]
+    async fn test_get_user_info_by_id() {
+        let mut api = screeps_api_from_env!().unwrap();
+        let user_info = api
+            .get_user_info_by_id("61f26f882181b7ba48c7015c".to_string())
+            .await
+            .unwrap();
+        assert_eq!(user_info.base_data.ok, 1);
+    }
+
+    #[tokio::test]
+    async fn test_get_user_info_by_name() {
+        let mut api = ScreepsApi::new(ScreepsConfig::default());
+        let user_info = api
+            .get_user_info_by_name("keqing".to_string())
+            .await
+            .unwrap();
+        assert_eq!(user_info.base_data.ok, 1);
+    }
+
+    #[tokio::test]
+    async fn test_get_user_rooms() {
+        let mut api = ScreepsApi::new(ScreepsConfig::default());
+        let user_rooms = api
+            .get_user_rooms("61f26f882181b7ba48c7015c".to_string())
+            .await
+            .unwrap();
+        assert_eq!(user_rooms.base_data.ok, 1);
     }
 
     #[tokio::test]

@@ -28,9 +28,9 @@ pub struct UserWithId {
     pub badge: Option<Badge>,
 }
 
-/// 用户信息
+/// 我的信息
 #[derive(Serialize, Deserialize, Debug)]
-pub struct UserInfo {
+pub struct MyInfo {
     pub _id: String,
     pub email: String,
     pub username: String,
@@ -55,6 +55,18 @@ pub struct UserInfo {
     pub power_experimentation_time: Option<u64>,
     pub resources: GlobalResources,
     pub steam: Option<SteamAccount>,
+}
+
+/// 用户信息
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UserInfo {
+    pub _id: String,
+    /// 最多只能拿到 id
+    pub steam: Option<HashMap<String, String>>,
+    pub username: String,
+    pub gcl: i32,
+    pub power: i32,
+    pub badge: Option<Badge>,
 }
 
 /// 用户通知设置
