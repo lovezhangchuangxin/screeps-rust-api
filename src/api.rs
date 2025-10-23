@@ -1,7 +1,7 @@
 use serde::{Serialize, de::DeserializeOwned};
 
 use crate::{
-    EncodedRoomTerrainData, MyInfoData, MyNameData, RoomStatusData, RoomTerrainData,
+    AllShardData, EncodedRoomTerrainData, MyInfoData, MyNameData, RoomStatusData, RoomTerrainData,
     UserAllRoomsData, UserInfoData,
     config::ScreepsConfig,
     error::ScreepsResult,
@@ -51,6 +51,17 @@ impl ScreepsApi {
     /// 获取玩家的所有房间
     pub async fn get_user_rooms(&self, id: &str) -> ScreepsResult<UserAllRoomsData> {
         self.request(Get, "/user/rooms", Some(&[("id", id)])).await
+    }
+
+    /// 根据用户名获取玩家信息
+    pub async fn get_user_info_by_name(&self, username: &str) -> ScreepsResult<UserInfoData> {
+        self.request(Get, "/user/find", Some(&[("username", username)]))
+            .await
+    }
+
+    /// 根据用户ID获取玩家信息
+    pub async fn get_user_info_by_id(&self, id: &str) -> ScreepsResult<UserInfoData> {
+        self.request(Get, "/user/find", Some(&[("id", id)])).await
     }
 
     /// 获取房间对象数据
@@ -108,15 +119,10 @@ impl ScreepsApi {
         .await
     }
 
-    /// 根据用户名获取玩家信息
-    pub async fn get_user_info_by_name(&self, username: &str) -> ScreepsResult<UserInfoData> {
-        self.request(Get, "/user/find", Some(&[("username", username)]))
+    /// 获取所有shard的信息
+    pub async fn get_shards(&self) -> ScreepsResult<AllShardData> {
+        self.request::<AnyPayload, AllShardData>(Get, "/game/shards/info", None)
             .await
-    }
-
-    /// 根据用户ID获取玩家信息
-    pub async fn get_user_info_by_id(&self, id: &str) -> ScreepsResult<UserInfoData> {
-        self.request(Get, "/user/find", Some(&[("id", id)])).await
     }
 }
 
@@ -201,5 +207,12 @@ mod tests {
         let api = screeps_api_from_env!().unwrap();
         let room_status = api.get_room_status("E13S13", "shard3").await.unwrap();
         assert_eq!(room_status.base_data.ok, 1);
+    }
+
+    #[tokio::test]
+    async fn test_get_shards() {
+        let api = ScreepsApi::new(ScreepsConfig::default());
+        let my_info = api.get_shards().await.unwrap();
+        assert_eq!(my_info.base_data.ok, 1);
     }
 }

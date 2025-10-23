@@ -150,6 +150,19 @@ pub struct RoomStatus {
     pub novice: Option<i32>,
 }
 
+/// shard 信息
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ShardInfo {
+    name: String,
+    #[serde(rename = "lastTicks")]
+    last_ticks: Vec<u64>,
+    #[serde(rename = "cpuLimit")]
+    cpu_limit: i32,
+    rooms: i32,
+    users: i32,
+    tick: f64,
+}
+
 /// 基本对象数据，每个对象都继承该结构
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BaseObject {

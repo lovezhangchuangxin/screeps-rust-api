@@ -1,6 +1,5 @@
 use std::{collections::HashMap, error::Error};
 
-// 查询玩家每个shard具有的资源
 use screeps_rust_api::{RoomObject, ScreepsApi, ScreepsError, ScreepsResult, screeps_api_from_env};
 
 #[tokio::main]
@@ -21,6 +20,10 @@ async fn main() -> ScreepsResult<()> {
     Ok(())
 }
 
+/// 查询玩家指定shard具有的资源
+/// 参数：
+/// - username: 玩家名称
+/// - target_shard: 目标 shard，传 `all` 表示所有 shard
 async fn query_res(
     api: &mut ScreepsApi,
     username: &str,

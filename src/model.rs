@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    EncodedRoomTerrain, MyInfo, RoomStatus, RoomTerrain, UserInfo,
+    EncodedRoomTerrain, MyInfo, RoomStatus, RoomTerrain, ShardInfo, UserInfo,
     types::{RoomObject, UserWithId},
 };
 
@@ -92,4 +92,12 @@ pub struct RoomStatusData {
     #[serde(flatten)]
     pub base_data: BaseData,
     pub rooms: Option<RoomStatus>,
+}
+
+/// 所有 shard 信息
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AllShardData {
+    #[serde(flatten)]
+    pub base_data: BaseData,
+    pub shards: Option<Vec<ShardInfo>>,
 }
