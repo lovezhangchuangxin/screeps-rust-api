@@ -2,6 +2,11 @@
 name = "screeps-rust-api"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
+description = "Screeps Rust API"
+homepage = "https://github.com/lovezhangchuangxin/screeps-rust-api"
+repository = "https://github.com/lovezhangchuangxin/screeps-rust-api"
+readme = "README.md"
 
 [profile.dev]
 opt-level = 0
