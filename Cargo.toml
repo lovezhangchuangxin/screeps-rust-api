@@ -6,6 +6,7 @@ license = "MIT"
 description = "Screeps Rust API"
 homepage = "https://github.com/lovezhangchuangxin/screeps-rust-api"
 repository = "https://github.com/lovezhangchuangxin/screeps-rust-api"
+authors = ["lovezhangchuangxin <2911331070@qq.com>"]
 readme = "README.md"
 
 [profile.dev]
