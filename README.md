@@ -44,6 +44,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+更多用法可以查看 `examples` 下的示例代码。
+
 ## 支持的 API 接口
 
 ### 用户相关

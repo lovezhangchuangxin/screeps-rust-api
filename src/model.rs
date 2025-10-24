@@ -11,7 +11,7 @@ use crate::{
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BaseData {
     /// 1 成功，0 失败
-    pub ok: i32,
+    pub ok: Option<i32>,
     /// 错误信息
     pub error: Option<String>,
 }

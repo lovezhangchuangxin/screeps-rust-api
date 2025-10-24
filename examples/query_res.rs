@@ -1,11 +1,13 @@
+//! 实现获取玩家指定 shard 的全部资源
+
 use std::{collections::HashMap, error::Error};
 
 use screeps_rust_api::{RoomObject, ScreepsApi, ScreepsError, ScreepsResult, screeps_api_from_env};
 
 #[tokio::main]
 async fn main() -> ScreepsResult<()> {
-    let mut api = screeps_api_from_env!().unwrap();
-    let res = query_res(&mut api, "6g3y", "all").await;
+    let api = screeps_api_from_env!().unwrap();
+    let res = query_res(&api, "6g3y", "all").await;
     match res {
         Ok(res) => {
             println!("{:?}", res);
@@ -25,7 +27,7 @@ async fn main() -> ScreepsResult<()> {
 /// - username: 玩家名称
 /// - target_shard: 目标 shard，传 `all` 表示所有 shard
 async fn query_res(
-    api: &mut ScreepsApi,
+    api: &ScreepsApi,
     username: &str,
     target_shard: &str,
 ) -> ScreepsResult<HashMap<String, HashMap<String, i32>>> {
@@ -33,14 +35,14 @@ async fn query_res(
 
     // 先根据玩家信息查玩家的 id
     let user_info = api.get_user_info_by_name(username).await?;
-    if user_info.base_data.ok != 1 {
+    if user_info.base_data.ok.unwrap() != 1 {
         return Err(ScreepsError::Api("玩家不存在".to_string()));
     }
 
     let user_id = user_info.user.unwrap()._id;
     // 再根据玩家 id 查玩家所有房间
     let user_rooms = api.get_user_rooms(&user_id).await?;
-    if user_rooms.base_data.ok != 1 {
+    if user_rooms.base_data.ok.unwrap() != 1 {
         return Err(ScreepsError::Api("玩家没有房间".to_string()));
     }
 
@@ -68,7 +70,7 @@ async fn query_res(
     for (response, (room, shard)) in responses.into_iter().zip(room_shard_pairs.iter()) {
         match response {
             Ok(room_objects) => {
-                if room_objects.base_data.ok != 1 {
+                if room_objects.base_data.ok.unwrap() != 1 {
                     eprintln!(
                         "Failed to fetch objects for room {} in shard {}, reason: {}",
                         room,
