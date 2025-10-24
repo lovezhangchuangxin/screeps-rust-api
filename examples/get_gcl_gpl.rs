@@ -1,4 +1,4 @@
-// 实现获取指定玩家的 GCL 和 GPL
+//! 实现获取指定玩家的 GCL 和 GPL
 
 use screeps_rust_api::{ScreepsApi, ScreepsError, ScreepsResult};
 
